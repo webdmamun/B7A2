@@ -63,3 +63,34 @@ export const fetchAllIssues = async (sort: string, type?: string, status?: strin
 
   return issuesWithReporters;
 };
+
+export const fetchSingleIssue = async (id: string) => {
+  const result = await pool.query(`SELECT * FROM issues WHERE id = $1`, [id]);
+  const issue = result.rows[0];
+
+  if (!issue) {
+    return null;
+  }
+
+  let reporter = null;
+  if (issue.reporter_id) {
+    const userResult = await pool.query(`SELECT id, name, role FROM users WHERE id = $1`, [issue.reporter_id]);
+    reporter = userResult.rows[0] || null;
+  }
+
+  const { reporter_id, ...issueData } = issue;
+  return {
+    ...issueData,
+    reporter
+  };
+};
+
+export const updateIssueData = async (id: string, title: string, description: string, type: string, status: string) => {
+  const result = await pool.query(
+    `UPDATE issues 
+     SET title = $1, description = $2, type = $3, status = $4, updated_at = CURRENT_TIMESTAMP
+     WHERE id = $5 RETURNING *`,
+    [title, description, type, status, id]
+  );
+  return result.rows[0];
+};
