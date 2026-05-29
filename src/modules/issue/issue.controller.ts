@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { insertIssue, fetchAllIssues, fetchSingleIssue, updateIssueData } from "./issue.service";
+import { insertIssue, fetchAllIssues, fetchSingleIssue, updateIssueData, deleteIssueData } from "./issue.service";
 import { sendResponse, sendError } from "../../utils/sendResponse";
 
 export const createIssue = async (req: Request, res: Response) => {
@@ -87,6 +87,24 @@ export const updateIssue = async (req: Request, res: Response) => {
     const updatedIssue = await updateIssueData(id as string, newTitle, newDescription, newType, newStatus);
 
     return sendResponse(res, 200, true, "Issue updated successfully", updatedIssue);
+  } catch (error: any) {
+    return sendError(res, 500, "Something went wrong!", error.message);
+  }
+};
+
+export const deleteIssue = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const existingIssue = await fetchSingleIssue(id as string);
+
+    if (!existingIssue) {
+      return sendError(res, 404, "Issue not found");
+    }
+
+    await deleteIssueData(id as string);
+
+    return sendResponse(res, 200, true, "Issue deleted successfully");
   } catch (error: any) {
     return sendError(res, 500, "Something went wrong!", error.message);
   }

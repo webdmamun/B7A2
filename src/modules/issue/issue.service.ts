@@ -94,3 +94,7 @@ export const updateIssueData = async (id: string, title: string, description: st
   );
   return result.rows[0];
 };
+
+export const deleteIssueData = async (id: string) => {
+  await pool.query(`DELETE FROM issues WHERE id = $1`, [id]);
+};
