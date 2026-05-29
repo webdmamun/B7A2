@@ -3,7 +3,7 @@
 A collaborative platform for software teams to report bugs, suggest features, and coordinate resolutions.
 
 ## Live URL
-https://b7a2-devpulse.vercel.app
+https://b7-a2-silk.vercel.app/
 
 ## Features
 - User Registration & Authentication (JWT)
