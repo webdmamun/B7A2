@@ -1,13 +1,14 @@
 import { Response } from "express";
+import { IResponse } from "../types";
 
-export const sendResponse = (
+export const sendResponse = <T>(
   res: Response,
   statusCode: number,
   success: boolean,
   message: string,
-  data?: any
+  data?: T
 ) => {
-  const response: any = {
+  const response: IResponse<T> = {
     success,
     message,
   };
@@ -23,9 +24,9 @@ export const sendError = (
   res: Response,
   statusCode: number,
   message: string,
-  errors?: any
+  errors?: unknown
 ) => {
-  const response: any = {
+  const response: IResponse<null> = {
     success: false,
     message,
   };

@@ -13,17 +13,24 @@ export const signup = async (req: Request, res: Response) => {
       return sendError(res, 400, "Name, email, and password are required");
     }
 
-    const userRole = role === "maintainer" ? "maintainer" : "contributor";
+    let userRole = "contributor";
+    if (role) {
+      if (role !== "contributor" && role !== "maintainer") {
+        return sendError(res, 400, "Role must be contributor or maintainer");
+      }
+      userRole = role;
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await insertUser(name, email, hashedPassword, userRole);
 
     return sendResponse(res, 201, true, "User registered successfully", newUser);
-  } catch (error: any) {
-    if (error.code === "23505") {
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && (error as { code: string }).code === "23505") {
       return sendError(res, 400, "Email already exists");
     }
-    return sendError(res, 500, "Something went wrong!", error.message);
+    const errMessage = error instanceof Error ? error.message : "Unknown error";
+    return sendError(res, 500, "Something went wrong!", errMessage);
   }
 };
 
@@ -64,7 +71,8 @@ export const login = async (req: Request, res: Response) => {
     };
 
     return sendResponse(res, 200, true, "Login successful", { token, user: userWithoutPassword });
-  } catch (error: any) {
-    return sendError(res, 500, "Something went wrong!", error.message);
+  } catch (error: unknown) {
+    const errMessage = error instanceof Error ? error.message : "Unknown error";
+    return sendError(res, 500, "Something went wrong!", errMessage);
   }
 };

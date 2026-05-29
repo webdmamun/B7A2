@@ -11,7 +11,7 @@ export const insertIssue = async (title: string, description: string, type: stri
 
 export const fetchAllIssues = async (sort: string, type?: string, status?: string) => {
   let query = "SELECT * FROM issues";
-  const values: any[] = [];
+  const values: string[] = [];
   const conditions: string[] = [];
 
   if (type) {
@@ -44,7 +44,7 @@ export const fetchAllIssues = async (sort: string, type?: string, status?: strin
   // Fetch reporters manually as requested (no JOINs)
   const reporterIds = [...new Set(issues.map((issue) => issue.reporter_id).filter(id => id !== null))];
   
-  let usersMap: Record<number, any> = {};
+  let usersMap: Record<number, { id: number, name: string, role: string }> = {};
   if (reporterIds.length > 0) {
     const usersResult = await pool.query(`SELECT id, name, role FROM users WHERE id = ANY($1)`, [reporterIds]);
     for (const user of usersResult.rows) {
